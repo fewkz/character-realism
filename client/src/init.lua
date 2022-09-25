@@ -89,7 +89,7 @@ end
 -- useDir (-1 or 1) can be given to force whether the direction is flipped or not.
 local function computeLookAngle(lookVector: Vector3?, useDir: number?)
 	local inFirstPerson = isInFirstPerson()
-	local pitch, yaw, dir = 0, 0, 1
+	local yaw, pitch, dir = 0, 0, 1
 
 	if not lookVector then
 		local camera = workspace.CurrentCamera
@@ -103,22 +103,22 @@ local function computeLookAngle(lookVector: Vector3?, useDir: number?)
 		if rootPart then
 			assert(typeof(rootPart) == "Instance" and rootPart:IsA("BasePart"))
 			local cf = rootPart.CFrame
-			pitch = -cf.RightVector:Dot(lookVector)
+			yaw = -cf.RightVector:Dot(lookVector)
 
 			if not inFirstPerson then
 				dir = math.clamp(cf.LookVector:Dot(lookVector) * 10, -1, 1)
 			end
 		end
 
-		yaw = lookVector.Y
+		pitch = lookVector.Y
 	end
 
 	if useDir then
 		dir = useDir
 	end
 
-	pitch *= dir
 	yaw *= dir
+	pitch *= dir
 
 	return pitch, yaw
 end
@@ -241,13 +241,13 @@ local function updateCharacter(delta, config: Config, character, rotator: Rotato
 					fPitch = pitch * 1.3
 					fYaw = yaw * 1.3
 				else
-					fYaw = yaw * 0.8
+					fPitch = pitch * 0.8
 				end
 			end
 		end
 
 		local rot = origin - origin.Position
-		local cf = CFrame.Angles(0, fPitch, 0) * CFrame.Angles(fYaw, 0, 0)
+		local cf = CFrame.Angles(0, fYaw, 0) * CFrame.Angles(fPitch, 0, 0)
 		motor.C0 = origin * rot:Inverse() * cf * rot
 	end
 end

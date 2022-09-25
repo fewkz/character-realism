@@ -43,40 +43,40 @@ RealismClient.start({
 
 	RotationFactors = {
 		["Head"] = {
-			Pitch = 0.8,
-			Yaw = 0.75,
+			Pitch = 0.75,
+			Yaw = 0.8,
 		},
 		["UpperTorso"] = {
 			Pitch = 0.5,
 			Yaw = 0.5,
 		},
 		["LeftUpperArm"] = {
-			Pitch = 0.0,
-			Yaw = -0.5,
+			Pitch = -0.5,
+			Yaw = 0.0,
 		},
 		["RightUpperArm"] = {
-			Pitch = 0.0,
-			Yaw = -0.5,
+			Pitch = -0.5,
+			Yaw = 0.0,
 		},
 		["Torso"] = {
-			Pitch = 0.4,
-			Yaw = 0.2,
+			Pitch = 0.2,
+			Yaw = 0.4,
 		},
 		["Left Arm"] = {
-			Pitch = 0.0,
-			Yaw = -0.5,
+			Pitch = -0.5,
+			Yaw = 0.0,
 		},
 		["Right Arm"] = {
-			Pitch = 0.0,
-			Yaw = -0.5,
+			Pitch = -0.5,
+			Yaw = 0.0,
 		},
 		["Left Leg"] = {
-			Pitch = 0.0,
-			Yaw = -0.2,
+			Pitch = -0.2,
+			Yaw = 0.0,
 		},
 		["Right Leg"] = {
-			Pitch = 0.0,
-			Yaw = -0.2,
+			Pitch = -0.2,
+			Yaw = 0.0,
 		},
 	},
 })
