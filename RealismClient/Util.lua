@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- CloneTrooper1019, 2020 
+-- CloneTrooper1019, 2020
 -- Util Module
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -26,36 +26,36 @@ function Util:StepTowards(value, goal, rate)
 end
 
 function Util:PromiseChild(object, name, andThen, ...)
-	local promise = coroutine.wrap(function (...)
+	local promise = coroutine.wrap(function(...)
 		local child = object:WaitForChild(name, 10)
-		
+
 		if child then
 			andThen(child, ...)
 		end
 	end)
-	
+
 	promise(...)
 end
 
 function Util:PromiseValue(object, prop, andThen, ...)
-	local args = {...}
-	
-	local promise = coroutine.wrap(function (...)
+	local args = { ... }
+
+	local promise = coroutine.wrap(function(...)
 		local timeOut = tick() + 10
-		
+
 		while not object[prop] do
 			local now = tick()
-			
+
 			if (timeOut - now) < 0 then
 				return
 			end
-			
+
 			RunService.Heartbeat:Wait()
 		end
-		
+
 		andThen(object[prop], ...)
 	end)
-	
+
 	promise(...)
 end
 
