@@ -1,9 +1,5 @@
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CloneTrooper1019, 2020
 -- Realism Client
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Dependencies
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,10 +13,6 @@ local FpsCamera = require(script.FpsCamera)
 
 local XZ_VECTOR3 = Vector3.new(1, 0, 1)
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Main Logic
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 local CharacterRealism = {
 	Rotators = {},
 	BindTag = "RealismHook",
@@ -31,7 +23,6 @@ local CharacterRealism = {
 
 -- Connects a self-function by
 -- name to the provided event.
-
 function CharacterRealism:Connect(funcName, event)
 	return event:Connect(function(...)
 		self[funcName](self, ...)
@@ -40,7 +31,6 @@ end
 
 -- Register's a newly added Motor6D
 -- into the provided joint rotator.
-
 function CharacterRealism:AddMotor(rotator, motor)
 	local parent = motor.Parent
 
@@ -82,7 +72,6 @@ end
 -- Called when the client receives a new look-angle
 -- value from the server. This is also called continuously
 -- on the client to update the player's view with no latency.
-
 function CharacterRealism:OnLookReceive(player, pitch, yaw)
 	local character = player.Character
 	local rotator = self.Rotators[character]
@@ -96,7 +85,6 @@ end
 -- Computes the look-angle to be used by the client.
 -- If no lookVector is provided, the camera's lookVector is used instead.
 -- useDir (-1 or 1) can be given to force whether the direction is flipped or not.
-
 function CharacterRealism:ComputeLookAngle(lookVector, useDir)
 	local inFirstPerson = FpsCamera:IsInFirstPerson()
 	local pitch, yaw, dir = 0, 0, 1
@@ -135,7 +123,6 @@ end
 
 -- Interpolates the current value of a rotator
 -- state (pitch/yaw) towards its goal value.
-
 function CharacterRealism:StepValue(state, delta)
 	local current = state.Current or 0
 	local goal = state.Goal
@@ -152,7 +139,6 @@ end
 -- Called to update all of the look-angles being tracked
 -- on the client, as well as our own client look-angles.
 -- This is called during every RunService Heartbeat.
-
 function CharacterRealism:UpdateLookAngles(delta)
 	-- Update our own look-angles with no latency
 	local pitch, yaw = self:ComputeLookAngle()
@@ -319,7 +305,6 @@ function CharacterRealism:UpdateLookAngles(delta)
 	-- were indexed into it. This is done after iterating over
 	-- the rotators to avoid problems with removing data from
 	-- a table while iterating over said table.
-
 	if dropList then
 		for character in pairs(dropList) do
 			local rotator = self.Rotators[character]
@@ -337,7 +322,6 @@ end
 -- Mounts the provided humanoid into the look-angle
 -- update system, binding all of its current and
 -- future Motor6D joints into the rotator.
-
 function CharacterRealism:MountLookAngle(humanoid)
 	local character = humanoid.Parent
 	local rotator = character and self.Rotators[character]
@@ -361,7 +345,6 @@ function CharacterRealism:MountLookAngle(humanoid)
 		-- If this is our character, the rotation
 		-- values should not be interpolated while
 		-- the client is in first person.
-
 		local player = Players:GetPlayerFromCharacter(character)
 
 		if player == self.Player then
@@ -373,7 +356,6 @@ function CharacterRealism:MountLookAngle(humanoid)
 
 		-- Record all existing Motor6D joints
 		-- and begin recording newly added ones.
-
 		local function onDescendantAdded(desc)
 			if desc:IsA("Motor6D") then
 				self:AddMotor(rotator, desc)
@@ -393,7 +375,6 @@ end
 -- Mounts the custom material walking sounds into the provided
 -- humanoid. This mounting assumes the HumanoidRootPart is the
 -- part that will be storing the character's "Running" sound.
-
 function CharacterRealism:MountMaterialSounds(humanoid)
 	local character = humanoid.Parent
 	local rootPart = character
@@ -467,7 +448,6 @@ end
 -- Called when the RealismHook tag is added to a
 -- humanoid in the DataModel. Mounts the look-angle
 -- and material walking sounds into this humanoid.
-
 function CharacterRealism:OnHumanoidAdded(humanoid)
 	if humanoid:IsA("Humanoid") then
 		if not self.SkipLookAngle then
@@ -483,7 +463,6 @@ end
 -- Called once when the realism client is starting.
 -- This is intended for compatibility with AeroGameFramework modules,
 -- but the function will automatically be called if executed from a LocalScript.
-
 function CharacterRealism:Start()
 	assert(
 		not _G.DefineRealismClient,

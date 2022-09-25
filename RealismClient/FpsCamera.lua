@@ -1,9 +1,5 @@
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CloneTrooper1019, 2020
 -- FPS Camera
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Dependencies
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
@@ -11,10 +7,6 @@ local RunService = game:GetService("RunService")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 
 local XZ_VECTOR3 = Vector3.new(1, 0, 1)
-
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Main Logic
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local FpsCamera = {
 	HeadMirrors = {},
@@ -35,14 +27,12 @@ local FpsCamera = {
 
 -- Writes a warning to the output
 -- in context of the FpsCamera.
-
 function FpsCamera:Warn(...)
 	warn("[FpsCamera]", ...)
 end
 
 -- Connects a self-function by
 -- name to the provided event.
-
 function FpsCamera:Connect(funcName, event)
 	return event:Connect(function(...)
 		self[funcName](self, ...)
@@ -51,7 +41,6 @@ end
 
 -- Returns true if the client is
 -- currently in first person.
-
 function FpsCamera:IsInFirstPerson()
 	local camera = workspace.CurrentCamera
 
@@ -71,7 +60,6 @@ end
 
 -- Returns the subject position the FpsCamera
 -- wants Roblox's camera to be using right now.
-
 function FpsCamera:GetSubjectPosition()
 	if self:IsInFirstPerson() then
 		local camera = workspace.CurrentCamera
@@ -95,7 +83,6 @@ end
 
 -- This is an overload function for TransparencyController:IsValidPartToModify(part)
 -- You may call it directly if you'd like, as it does not have any external dependencies.
-
 function FpsCamera:IsValidPartToModify(part)
 	if part:FindFirstAncestorOfClass("Tool") then
 		return false
@@ -140,7 +127,6 @@ end
 
 -- Overloads BaseCamera:GetSubjectPosition() with
 -- the GetSubjectPosition function of the FpsCamera.
-
 function FpsCamera:MountBaseCamera(BaseCamera)
 	local base = BaseCamera.GetSubjectPosition
 	self.GetBaseSubjectPosition = base
@@ -157,7 +143,6 @@ end
 
 -- This is an overload function for TransparencyController:Update()
 -- Do not call directly, or it will throw an assertion!
-
 function FpsCamera:UpdateTransparency(...)
 	assert(self ~= FpsCamera)
 	self:BaseUpdate(...)
@@ -174,7 +159,6 @@ end
 
 -- This is an overloaded function for TransparencyController:SetupTransparency(character)
 -- Do not call directly, or it will throw an assertion!
-
 function FpsCamera:SetupTransparency(character, ...)
 	assert(self ~= FpsCamera)
 	self:BaseSetupTransparency(character, ...)
@@ -198,7 +182,6 @@ end
 
 -- Overloads functions in Roblox's TransparencyController
 -- module with replacement functions in the FpsCamera.
-
 function FpsCamera:MountTransparency(Transparency)
 	local baseUpdate = Transparency.Update
 
@@ -231,7 +214,6 @@ end
 
 -- Returns the current angle being used
 -- by Roblox's shadow mapping system.
-
 function FpsCamera:GetShadowAngle()
 	local angle = Lighting:GetSunDirection()
 
@@ -245,7 +227,6 @@ end
 
 -- Forces a copy object to mirror the value of
 -- a property on the provided base object.
-
 function FpsCamera:MirrorProperty(base, copy, prop)
 	base:GetPropertyChangedSignal(prop):Connect(function()
 		copy[prop] = base[prop]
@@ -254,7 +235,6 @@ end
 
 -- Creates a lazy object-mirror for the provided part.
 -- This is used to make the Head visible in first person.
-
 function FpsCamera:AddHeadMirror(desc)
 	if desc:IsA("BasePart") and self:IsValidPartToModify(desc) then
 		local mirror = desc:Clone()
@@ -296,7 +276,6 @@ end
 -- Removes the mirror copy of the provided
 -- object from the HeadMirrors table, if it
 -- is defined in there presently.
-
 function FpsCamera:RemoveHeadMirror(desc)
 	local mirror = self.HeadMirrors[desc]
 
@@ -309,7 +288,6 @@ end
 -- Called when the user's rotation type is changed.
 -- This is a strong indication the user is in first person
 -- and needs to have its first person movement smoothened out.
-
 function FpsCamera:OnRotationTypeChanged()
 	local camera = workspace.CurrentCamera
 	local subject = camera and camera.CameraSubject
@@ -402,7 +380,6 @@ end
 
 -- Called when the player's character is added.
 -- Sets up mirroring of the player's head for first person.
-
 function FpsCamera:OnCharacterAdded(character)
 	local mirrorBin = self.MirrorBin
 
@@ -423,9 +400,7 @@ end
 
 -- Called once to start the FpsCamera logic.
 -- Binds and overloads everything necessary.
-
 local started = false
-
 function FpsCamera:Start()
 	if started then
 		return
