@@ -49,16 +49,12 @@ function CharacterRealism:AddMotor(rotator, motor)
 		-- If it can be found, use the source RigAttachment for this Motor6D
 		-- joint instead of using the static C0 value. This is intended for R15.
 
-		Util:PromiseChild(
-			motor.Part0,
-			motor.Name .. "RigAttachment",
-			function(origin)
-				if origin:IsA("Attachment") then
-					data.Origin = origin
-					data.C0 = nil
-				end
+		Util:PromiseChild(motor.Part0, motor.Name .. "RigAttachment", function(origin)
+			if origin:IsA("Attachment") then
+				data.Origin = origin
+				data.C0 = nil
 			end
-		)
+		end)
 
 		-- Add this motor to the rotator
 		-- by the name of its Part1 value.
@@ -95,8 +91,7 @@ function CharacterRealism:ComputeLookAngle(lookVector, useDir)
 
 	if lookVector then
 		local character = self.Player.Character
-		local rootPart = character
-			and character:FindFirstChild("HumanoidRootPart")
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 
 		if rootPart and rootPart:IsA("BasePart") then
 			local cf = rootPart.CFrame
@@ -262,9 +257,7 @@ function CharacterRealism:UpdateLookAngles(delta)
 			if name:sub(-4) == " Arm" or name:sub(-8) == "UpperArm" then
 				local tool = character:FindFirstChildOfClass("Tool")
 
-				if
-					tool and not CollectionService:HasTag(tool, "NoArmRotation")
-				then
+				if tool and not CollectionService:HasTag(tool, "NoArmRotation") then
 					if
 						name:sub(1, 5) == "Right"
 						and rootPart:GetRootPart() ~= rootPart
@@ -292,8 +285,7 @@ function CharacterRealism:UpdateLookAngles(delta)
 			if dirty then
 				local rot = origin - origin.Position
 
-				local cf = CFrame.Angles(0, fPitch, 0)
-					* CFrame.Angles(fYaw, 0, 0)
+				local cf = CFrame.Angles(0, fPitch, 0) * CFrame.Angles(fYaw, 0, 0)
 
 				motor.C0 = origin * rot:Inverse() * cf * rot
 			end
@@ -376,8 +368,7 @@ end
 -- part that will be storing the character's "Running" sound.
 function CharacterRealism:MountMaterialSounds(humanoid)
 	local character = humanoid.Parent
-	local rootPart = character
-		and character:WaitForChild("HumanoidRootPart", 10)
+	local rootPart = character and character:WaitForChild("HumanoidRootPart", 10)
 
 	if not (rootPart and rootPart:IsA("BasePart")) then
 		return
@@ -463,10 +454,7 @@ end
 -- This is intended for compatibility with AeroGameFramework modules,
 -- but the function will automatically be called if executed from a LocalScript.
 function CharacterRealism:Start()
-	assert(
-		not _G.DefineRealismClient,
-		"Realism can only be started once on the client!"
-	)
+	assert(not _G.DefineRealismClient, "Realism can only be started once on the client!")
 	_G.DefineRealismClient = true
 
 	for key, value in pairs(Config) do

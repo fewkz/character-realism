@@ -135,9 +135,7 @@ function FpsCamera:MountBaseCamera(BaseCamera)
 		BaseCamera.GetBaseSubjectPosition = base
 		BaseCamera.GetSubjectPosition = self.GetSubjectPosition
 	else
-		self:Warn(
-			"MountBaseCamera - Could not find BaseCamera:GetSubjectPosition()!"
-		)
+		self:Warn("MountBaseCamera - Could not find BaseCamera:GetSubjectPosition()!")
 	end
 end
 
@@ -302,9 +300,7 @@ function FpsCamera:OnRotationTypeChanged()
 				if
 					subject.AutoRotate
 					or not subject:IsDescendantOf(game)
-					or (
-						subject.SeatPart and subject.SeatPart:IsA("VehicleSeat")
-					)
+					or (subject.SeatPart and subject.SeatPart:IsA("VehicleSeat"))
 				then
 					RunService:UnbindFromRenderStep("FpsCamera")
 					return
@@ -415,8 +411,7 @@ function FpsCamera:Start()
 	local PlayerModule = PlayerScripts:WaitForChild("PlayerModule")
 
 	local baseCamera = PlayerModule:FindFirstChild("BaseCamera", true)
-	local transparency =
-		PlayerModule:FindFirstChild("TransparencyController", true)
+	local transparency = PlayerModule:FindFirstChild("TransparencyController", true)
 
 	if baseCamera and baseCamera:IsA("ModuleScript") then
 		local module = require(baseCamera)
@@ -432,8 +427,7 @@ function FpsCamera:Start()
 		self:Warn("Start - Cound not find TransparencyController module!")
 	end
 
-	local rotListener =
-		UserGameSettings:GetPropertyChangedSignal("RotationType")
+	local rotListener = UserGameSettings:GetPropertyChangedSignal("RotationType")
 	self:Connect("OnRotationTypeChanged", rotListener)
 
 	self.MirrorBin = Instance.new("Folder")
