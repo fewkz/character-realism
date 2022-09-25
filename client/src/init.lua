@@ -402,11 +402,10 @@ type Config = {
 
 local CharacterRealism = {}
 
-local stop: () -> ()?
-
+local running: Running?
 function CharacterRealism.start(config: Config)
-	if stop then
-		return
+	if running then
+		return running
 	end
 	local setLookAnglesEvent = ReplicatedStorage:FindFirstChild("SetLookAngles")
 	assert(
@@ -433,16 +432,32 @@ function CharacterRealism.start(config: Config)
 	end)
 	setLookAnglesEvent.OnClientEvent:Connect(onLookReceive)
 
-	stop = function()
+	local function stop()
 		conn1:Disconnect()
 		conn2:Disconnect()
+		running = nil
+	end
+
+	local function editConfig(modifications)
+		config.ShouldMountLookAngle = modifications.ShouldMountLookAngle
+		config.ShouldMountMaterialSounds = modifications.ShouldMountMaterialSounds
+	end
+
+	running = { stop = stop, editConfig = editConfig }
+	assert(running)
+	return running
+end
+type Running = typeof(CharacterRealism.start({} :: any))
+
+function CharacterRealism.edit(modifications)
+	if running then
+		running.editConfig(modifications)
 	end
 end
 
 function CharacterRealism.stop()
-	if stop then
-		stop()
-		stop = nil
+	if running then
+		running.stop()
 	end
 end
 
