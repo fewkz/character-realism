@@ -13,8 +13,8 @@ type Motor =
 	| { Motor: Motor6D, C0: nil, Origin: Attachment }
 type Rotator = {
 	Motors: { [string]: Motor },
-	Pitch: { Goal: number, Current: number, Value: number? },
-	Yaw: { Goal: number, Current: number, Value: number? },
+	Pitch: { Goal: number, Current: number },
+	Yaw: { Goal: number, Current: number },
 }
 
 local rotators: { [Model]: Rotator } = {}
@@ -43,8 +43,6 @@ local function stepTowards(value: number, goal, rate): number
 		return value
 	end
 end
-
-local CharacterRealism = {}
 
 -- Register's a newly added Motor6D
 -- into the provided joint rotator.
@@ -190,7 +188,7 @@ local function updateCharacter(delta, config: Config, character, rotator: Rotato
 	local motors = rotator.Motors
 
 	for name, factors in pairs(config.RotationFactors) do
-		local data = if motors then motors[name] else nil
+		local data: Motor? = if motors then motors[name] else nil
 		if not data then
 			continue
 		end
@@ -248,13 +246,9 @@ local function updateCharacter(delta, config: Config, character, rotator: Rotato
 			end
 		end
 
-		if fPitch ~= pitchState.Value or fYaw ~= yawState.Value then
-			pitchState.Value = fPitch
-			yawState.Value = fYaw
-			local rot = origin - origin.Position
-			local cf = CFrame.Angles(0, fPitch, 0) * CFrame.Angles(fYaw, 0, 0)
-			motor.C0 = origin * rot:Inverse() * cf * rot
-		end
+		local rot = origin - origin.Position
+		local cf = CFrame.Angles(0, fPitch, 0) * CFrame.Angles(fYaw, 0, 0)
+		motor.C0 = origin * rot:Inverse() * cf * rot
 	end
 end
 
@@ -405,6 +399,8 @@ type Config = {
 		["Right Leg"]: ResolutionFactor,
 	},
 }
+
+local CharacterRealism = {}
 
 local stop: () -> ()?
 
