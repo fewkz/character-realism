@@ -1,34 +1,20 @@
 {
-	"name": "Realism",
-	
-	"tree":
-	{
+    "name": "Realism",
+    "servePort": 5000,
+    "tree": {
         "$className": "DataModel",
-
-        "ServerScriptService":
-        {
-            "$ignoreUnknownInstances": true,
-            "$className": "ServerScriptService",
-
-            "RealismServer":
-            {
-                "$path": "Realism.server.lua"
+        "ServerScriptService": {
+            "RealismServer": {
+                "$path": "server"
             }
         },
-        
-        "StarterPlayer":
-        {
-            "$className": "StarterPlayer",
-            "$ignoreUnknownInstances": true,
-
-            "StarterPlayerScripts":
-            {
-                "$className": "StarterPlayerScripts",
-                "$ignoreUnknownInstances": true,
-
-                "RealismClient":
-                {
-                    "$path": "RealismClient"
+        "StarterPlayer": {
+            "StarterPlayerScripts": {
+                "RealismClient": {
+                    "$path": "boot.client.lua",
+                    "RealismClient": {
+                        "$path": "client"
+                    }
                 }
             }
         }

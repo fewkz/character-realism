@@ -5,7 +5,6 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local Debris = game:GetService("Debris")
 
 local Util = require(script.Util)
 local Config = require(script.Config)

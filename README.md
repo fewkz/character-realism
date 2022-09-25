@@ -1,7 +1,7 @@
 # Character Realism
 
-By: CloneTrooper1019<br/>
-Made for Roblox!
+Fork of [Character Realism](https://github.com/MaximumADHD/Character-Realism) by [MaximumADHD](https://github.com/MaximumADHD)
+modified to be more extensible.
 
 ## What is this?
 

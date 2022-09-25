@@ -1,0 +1,6 @@
+{
+    "name": "character-realism-server",
+    "tree": {
+        "$path": "src"
+    }
+}
