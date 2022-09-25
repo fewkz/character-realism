@@ -1,0 +1,4 @@
+std = "roblox"
+[config]
+shadowing = "allow"
+incorrect_standard_library_use = "allow"
