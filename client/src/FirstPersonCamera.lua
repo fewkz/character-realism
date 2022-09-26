@@ -145,7 +145,7 @@ local function onRotationTypeChanged()
 	then
 		local humanoid = camera.CameraSubject
 		humanoid.AutoRotate = UserGameSettings.RotationType
-			== Enum.RotationType.CameraRelative
+			~= Enum.RotationType.CameraRelative
 		if not humanoid.AutoRotate then
 			RunService:BindToRenderStep("FirstPersonCamera", 1000, function(delta)
 				if
@@ -194,8 +194,6 @@ local function onRotationTypeChanged()
 
 				if isInFirstPerson() then
 					local cf = camera.CFrame
-
-					-- I don't know what this code is for. It seems to not do anything.
 					local headPos = getSubjectPosition()
 					if headPos then
 						local offset = (headPos - cf.Position)
