@@ -303,8 +303,8 @@ local warnedMaterials = {}
 local function mountMaterialSounds(humanoid: Humanoid, config: Config)
 	local char = humanoid.Parent
 	assert(char and char:IsA("Model"), "Could not find humanoid's character")
-	if not humanoid.RootPart then
-		humanoid:GetPropertyChangedSignal("RootPart"):Wait()
+	while not humanoid.RootPart do
+		char.ChildAdded:Wait()
 	end
 	local rootPart = humanoid.RootPart
 	assert(rootPart and rootPart:IsA("BasePart"), "Character had no root part")
