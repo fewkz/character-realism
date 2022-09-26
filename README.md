@@ -19,7 +19,7 @@ You can download a build with the server and client code included from [GitHub R
 
 You can also add realism to your project via [Wally](https://wally.run/) by adding the following dependencies.
 ```lua
-CharacterRealismClient = "fewkz/character-realism-client@0.1.4"
+CharacterRealismClient = "fewkz/character-realism-client@0.1.5"
 CharacterRealismServer = "fewkz/character-realism-server@0.1.1"
 ```
 

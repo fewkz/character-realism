@@ -165,6 +165,11 @@ local function updateCharacter(delta, config: Config, character, rotator: Rotato
 		return
 	end
 
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.PlatformStand and config.PlatformStandLocksTurning then
+		return
+	end
+
 	local rootPart = character.PrimaryPart
 	if not rootPart then
 		return
@@ -368,7 +373,10 @@ type RotationFactor = { Pitch: number, Yaw: number }
 export type Config = FirstPersonCamera.Config & {
 	BindTag: string,
 	LookAnglesSyncRemoteEvent: RemoteEvent,
+	-- Ignores rotation from camera while platform standing.
 	PlatformStandDisablesTurning: boolean,
+	-- Prevents any rotation from occuring while platform standing.
+	PlatformStandLocksTurning: boolean,
 	ShouldMountMaterialSounds: boolean,
 	ShouldMountLookAngle: boolean,
 	-- A dictionary mapping materials to walking sound ids.
