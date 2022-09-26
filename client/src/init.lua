@@ -86,18 +86,22 @@ end
 -- Computes the look-angle to be used by the client.
 -- If no lookVector is provided, the camera's lookVector is used instead.
 -- useDir (-1 or 1) can be given to force whether the direction is flipped or not.
-local function computeLookAngle(lookVector: Vector3?, useDir: number?)
+local function computeLookAngle(config: Config)
 	local inFirstPerson = isInFirstPerson()
 	local yaw, pitch, dir = 0, 0, 1
 
-	if not lookVector then
-		local camera = workspace.CurrentCamera
-		lookVector = camera.CFrame.LookVector
-	end
+	local lookVector = workspace.CurrentCamera.CFrame.LookVector
 
 	local character = Players.LocalPlayer.Character
 	if lookVector and character then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if
+			humanoid
+			and humanoid.PlatformStand
+			and config.PlatformStandDisablesTurning
+		then
+			return 0, 0
+		end
 		local rootPart = if humanoid then humanoid.RootPart else nil
 		if rootPart then
 			assert(typeof(rootPart) == "Instance" and rootPart:IsA("BasePart"))
@@ -110,10 +114,6 @@ local function computeLookAngle(lookVector: Vector3?, useDir: number?)
 		end
 
 		pitch = lookVector.Y
-	end
-
-	if useDir then
-		dir = useDir
 	end
 
 	yaw *= dir
@@ -247,7 +247,7 @@ end
 -- This is called during every RunService Heartbeat.
 local function updateLookAngles(delta, config: Config)
 	-- Update our own look-angles with no latency
-	local pitch, yaw = computeLookAngle()
+	local pitch, yaw = computeLookAngle(config)
 	onLookReceive(Players.LocalPlayer, pitch, yaw)
 
 	updateServer(config.LookAnglesSyncRemoteEvent, pitch, yaw)
@@ -368,6 +368,7 @@ type RotationFactor = { Pitch: number, Yaw: number }
 export type Config = FirstPersonCamera.Config & {
 	BindTag: string,
 	LookAnglesSyncRemoteEvent: RemoteEvent,
+	PlatformStandDisablesTurning: boolean,
 	ShouldMountMaterialSounds: boolean,
 	ShouldMountLookAngle: boolean,
 	-- A dictionary mapping materials to walking sound ids.

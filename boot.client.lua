@@ -6,6 +6,7 @@ RealismClient.start({
 	ShouldMountMaterialSounds = true,
 	ShouldMountLookAngle = true,
 	SmoothRotation = true,
+	PlatformStandDisablesTurning = false,
 	MaterialSoundFallback = Enum.Material.Concrete,
 	MaterialSounds = {
 		[Enum.Material.Mud] = 178054124,
