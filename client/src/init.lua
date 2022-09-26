@@ -2,7 +2,6 @@
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local FirstPersonCamera = require(script.FirstPersonCamera)
 

@@ -243,7 +243,7 @@ function FirstPersonCamera.start(config: Config)
 	baseCamera.GetSubjectPosition = getSubjectPosition
 
 	transparencyController.Update = wrapUpdateTransparency(transparencyController.Update)
-	transparencyController.IsValidPartToModify = function(self, ...)
+	transparencyController.IsValidPartToModify = function(_self, ...)
 		return isValidPartToModify(...)
 	end
 	transparencyController.ForceRefresh = true -- ideally we shouldn't need this
