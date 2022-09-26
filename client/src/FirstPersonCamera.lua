@@ -1,5 +1,4 @@
 local Players = game:GetService("Players")
-local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 
@@ -10,9 +9,6 @@ local DONT_ROTATE_STATES = {
 	[Enum.HumanoidStateType.Climbing] = true,
 	[Enum.HumanoidStateType.Dead] = true,
 }
-local headMirrors: { [BasePart]: BasePart } = {}
-local mirrorBin = Instance.new("Folder")
-mirrorBin.Name = "HeadMirrors"
 
 local getSubjectPosition: () -> (Vector3)
 
@@ -140,71 +136,6 @@ local function wrapSetupTransparency(setupTransparency)
 	end
 end
 
--- Returns the current angle being used
--- by Roblox's shadow mapping system.
-local function getShadowAngle()
-	local angle = Lighting:GetSunDirection()
-	if angle.Y < -0.3 then
-		-- Use the moon's angle instead.
-		angle = Lighting:GetMoonDirection()
-	end
-	return angle
-end
-
--- Forces a copy object to mirror the value of
--- a property on the provided base object.
-local function mirrorProperty<T>(base: T & Instance, copy: T & Instance, prop)
-	base:GetPropertyChangedSignal(prop):Connect(function()
-		(copy :: any)[prop] = (base :: any)[prop]
-	end)
-end
-
--- Creates a lazy object-mirror for the provided part.
--- This is used to make the Head visible in first person.
-local function addHeadMirror(desc: Instance)
-	if desc:IsA("BasePart") and isValidPartToModify(desc) then
-		local mirror = desc:Clone()
-		mirror:ClearAllChildren()
-
-		mirror.Locked = true
-		mirror.Anchored = true
-		mirror.CanCollide = false
-		mirror.Parent = mirrorBin
-
-		local function onChildAdded(child: Instance)
-			local prop
-
-			if child:IsA("DataModelMesh") then
-				prop = "Scale"
-			elseif child:IsA("Decal") then
-				prop = "Transparency"
-			end
-
-			if prop then
-				local copy = child:Clone()
-				copy.Parent = mirror
-
-				mirrorProperty(child, copy, prop)
-			end
-		end
-
-		desc.ChildAdded:Connect(onChildAdded)
-		for _, child in desc:GetChildren() do
-			onChildAdded(child)
-		end
-
-		headMirrors[desc] = mirror
-		mirrorProperty(desc, mirror, "Transparency")
-
-		desc.AncestryChanged:Connect(function(_, parent)
-			if parent == nil then
-				mirror:Destroy()
-				headMirrors[desc] = nil
-			end
-		end)
-	end
-end
-
 -- This indicates the user is in first person or shift lock
 -- and needs to have its first person movement smoothened out.
 local function onRotationTypeChanged()
@@ -274,36 +205,9 @@ local function onRotationTypeChanged()
 						camera.CFrame = cf
 						camera.Focus += offset
 					end
-
-					local shadowAngle = getShadowAngle()
-					local inView = cf.LookVector:Dot(shadowAngle)
-
-					if inView < 0 then
-						for real, mirror in headMirrors do
-							mirror.CFrame = real.CFrame + (shadowAngle * 9)
-						end
-					end
-
-					mirrorBin.Parent = if inView < 0 then camera else nil
-					return
 				end
 			end)
 		end
-		mirrorBin.Parent = nil
-	end
-end
-
--- Called when the player's character is added.
--- Sets up mirroring of the player's head for first person.
-local function onCharacterAdded(character: Model)
-	if mirrorBin then
-		mirrorBin:ClearAllChildren()
-		mirrorBin.Parent = nil
-	end
-	headMirrors = {}
-	character.DescendantAdded:Connect(addHeadMirror)
-	for _, desc in character:GetDescendants() do
-		addHeadMirror(desc)
 	end
 end
 
@@ -349,12 +253,6 @@ function FirstPersonCamera.start(config: { SmoothRotation: boolean })
 	if config.SmoothRotation then
 		local rotListener = UserGameSettings:GetPropertyChangedSignal("RotationType")
 		rotListener:Connect(onRotationTypeChanged)
-	end
-
-	Players.LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
-	local character = Players.LocalPlayer.Character
-	if character then
-		onCharacterAdded(character)
 	end
 end
 
