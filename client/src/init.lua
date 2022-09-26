@@ -140,7 +140,7 @@ end
 
 local lastPitch, lastYaw
 local lastUpdate = 0
-local function updateServer(pitch, yaw)
+local function updateServer(remoteEvent: RemoteEvent, pitch, yaw)
 	local now = os.clock()
 	if (now - lastUpdate) > 0.5 then
 		pitch = roundNearestInterval(pitch, 0.05)
@@ -149,14 +149,7 @@ local function updateServer(pitch, yaw)
 			lastPitch = pitch
 			lastYaw = yaw
 			lastUpdate = now
-			local setLookAnglesEvent = ReplicatedStorage:FindFirstChild("SetLookAngles")
-			if setLookAnglesEvent and setLookAnglesEvent:IsA("RemoteEvent") then
-				setLookAnglesEvent:FireServer(pitch, yaw)
-			else
-				warn(
-					"SetLookAngles not found in ReplicatedStorage, is the server running?"
-				)
-			end
+			remoteEvent:FireServer(pitch, yaw)
 		end
 	end
 end
@@ -258,7 +251,7 @@ local function updateLookAngles(delta, config: Config)
 	local pitch, yaw = computeLookAngle()
 	onLookReceive(Players.LocalPlayer, pitch, yaw)
 
-	updateServer(pitch, yaw)
+	updateServer(config.LookAnglesSyncRemoteEvent, pitch, yaw)
 
 	-- Update all of the character look-angles
 	for character, rotator in rotators do
@@ -375,6 +368,7 @@ end
 type ResolutionFactor = { Pitch: number, Yaw: number }
 type Config = {
 	BindTag: string,
+	LookAnglesSyncRemoteEvent: RemoteEvent,
 	ShouldMountMaterialSounds: boolean,
 	ShouldMountLookAngle: boolean,
 	SmoothRotation: boolean,
@@ -399,18 +393,13 @@ type Config = {
 	},
 }
 
-local CharacterRealism = {}
+local RealismClient = {}
 
 local running: Running?
-function CharacterRealism.start(config: Config)
+function RealismClient.start(config: Config)
 	if running then
 		return running
 	end
-	local setLookAnglesEvent = ReplicatedStorage:FindFirstChild("SetLookAngles")
-	assert(
-		setLookAnglesEvent and setLookAnglesEvent:IsA("RemoteEvent"),
-		"SetLookAngles not found in ReplicatedStorage, is the server running?"
-	)
 	FirstPersonCamera.start({ SmoothRotation = config.SmoothRotation })
 	local function onHumanoid(humanoid)
 		if config.ShouldMountLookAngle then
@@ -429,7 +418,7 @@ function CharacterRealism.start(config: Config)
 	local conn2 = RunService.Heartbeat:Connect(function(delta)
 		updateLookAngles(delta, config)
 	end)
-	setLookAnglesEvent.OnClientEvent:Connect(onLookReceive)
+	config.LookAnglesSyncRemoteEvent.OnClientEvent:Connect(onLookReceive)
 
 	local function stop()
 		conn1:Disconnect()
@@ -446,18 +435,18 @@ function CharacterRealism.start(config: Config)
 	assert(running)
 	return running
 end
-type Running = typeof(CharacterRealism.start({} :: any))
+type Running = typeof(RealismClient.start({} :: any))
 
-function CharacterRealism.edit(modifications)
+function RealismClient.edit(modifications)
 	if running then
 		running.editConfig(modifications)
 	end
 end
 
-function CharacterRealism.stop()
+function RealismClient.stop()
 	if running then
 		running.stop()
 	end
 end
 
-return CharacterRealism
+return RealismClient

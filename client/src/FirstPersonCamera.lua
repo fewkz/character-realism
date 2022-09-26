@@ -87,7 +87,6 @@ local function isValidPartToModify(part: Instance)
 				else nil
 
 			if humanoid and camera.CameraSubject == humanoid then
-				print("Found head", part, humanoid)
 				return true
 			end
 		end

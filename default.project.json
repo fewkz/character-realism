@@ -5,7 +5,10 @@
         "$className": "DataModel",
         "ServerScriptService": {
             "RealismServer": {
-                "$path": "server"
+                "$path": "boot.server.lua",
+                "RealismServer": {
+                    "$path": "server"
+                }
             }
         },
         "StarterPlayer": {

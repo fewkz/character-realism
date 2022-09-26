@@ -1,6 +1,8 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RealismClient = require(script.RealismClient)
 RealismClient.start({
 	BindTag = "RealismHook",
+	LookAnglesSyncRemoteEvent = ReplicatedStorage:WaitForChild("RealismLookAnglesSync"),
 	ShouldMountMaterialSounds = true,
 	ShouldMountLookAngle = true,
 	SmoothRotation = true,
