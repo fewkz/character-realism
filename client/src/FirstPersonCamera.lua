@@ -151,7 +151,7 @@ local function onRotationTypeChanged()
 				if
 					humanoid.AutoRotate
 					or not humanoid:IsDescendantOf(game)
-					or (humanoid.SeatPart and humanoid.SeatPart:IsA("VehicleSeat"))
+					or humanoid.SeatPart and humanoid.SeatPart:IsA("VehicleSeat")
 				then
 					RunService:UnbindFromRenderStep("FirstPersonCamera")
 					return
@@ -172,7 +172,11 @@ local function onRotationTypeChanged()
 						canRotate = false
 					end
 
-					if humanoid.Sit and humanoid.SeatPart then
+					if
+						humanoid.Sit and not humanoid.SeatPart or humanoid.PlatformStand
+					then
+						canRotate = false
+					elseif humanoid.Sit and humanoid.SeatPart then
 						local root = rootPart:GetRootPart()
 
 						if root ~= rootPart then
