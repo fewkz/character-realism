@@ -3,6 +3,7 @@ RealismClient.start({
 	BindTag = "RealismHook",
 	ShouldMountMaterialSounds = true,
 	ShouldMountLookAngle = true,
+	SmoothRotation = true,
 	MaterialSoundFallback = Enum.Material.Concrete,
 	MaterialSounds = {
 		[Enum.Material.Mud] = 178054124,

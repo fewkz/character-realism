@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local FpsCamera = require(script.FpsCamera)
+local FirstPersonCamera = require(script.FirstPersonCamera)
 
 local XZ_VECTOR3 = Vector3.new(1, 0, 1)
 
@@ -20,7 +20,7 @@ type Rotator = {
 local rotators: { [Model]: Rotator } = {}
 
 local function isInFirstPerson()
-	return FpsCamera:IsInFirstPerson()
+	return FirstPersonCamera.isInFirstPerson()
 end
 
 local function round(number: number, factor: number)
@@ -212,8 +212,6 @@ local function updateCharacter(delta, config: Config, character, rotator: Rotato
 			origin = data.Origin.CFrame
 		elseif data.C0 then
 			origin = data.C0
-		else
-			continue
 		end
 
 		local pitch = pitchState.Current
@@ -379,6 +377,7 @@ type Config = {
 	BindTag: string,
 	ShouldMountMaterialSounds: boolean,
 	ShouldMountLookAngle: boolean,
+	SmoothRotation: boolean,
 	-- A dictionary mapping materials to walking sound ids.
 	MaterialSounds: { [Enum.Material]: number },
 	MaterialSoundFallback: Enum.Material,
@@ -412,7 +411,7 @@ function CharacterRealism.start(config: Config)
 		setLookAnglesEvent and setLookAnglesEvent:IsA("RemoteEvent"),
 		"SetLookAngles not found in ReplicatedStorage, is the server running?"
 	)
-	FpsCamera:Start()
+	FirstPersonCamera.start({ SmoothRotation = config.SmoothRotation })
 	local function onHumanoid(humanoid)
 		if config.ShouldMountLookAngle then
 			task.spawn(mountLookAngle, humanoid)
