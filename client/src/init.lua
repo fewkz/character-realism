@@ -366,12 +366,11 @@ local function mountMaterialSounds(humanoid: Humanoid, config: Config)
 end
 
 type RotationFactor = { Pitch: number, Yaw: number }
-type Config = {
+export type Config = FirstPersonCamera.Config & {
 	BindTag: string,
 	LookAnglesSyncRemoteEvent: RemoteEvent,
 	ShouldMountMaterialSounds: boolean,
 	ShouldMountLookAngle: boolean,
-	SmoothRotation: boolean,
 	-- A dictionary mapping materials to walking sound ids.
 	MaterialSounds: { [Enum.Material]: number },
 	MaterialSoundFallback: Enum.Material,

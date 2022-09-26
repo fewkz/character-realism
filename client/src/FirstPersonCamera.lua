@@ -33,7 +33,7 @@ end
 -- Wraps BaseCamera:GetSubjectPosition() to offset the camera
 -- to the head when you're in first person.
 local function wrapGetSubjectPosition(getSubjectPosition)
-	return function(self: any)
+	return function()
 		local subject = workspace.CurrentCamera.CameraSubject
 		if
 			isInFirstPerson()
@@ -47,7 +47,7 @@ local function wrapGetSubjectPosition(getSubjectPosition)
 				return head.CFrame * Vector3.new(0, head.Size.Y / 3, 0)
 			end
 		end
-		return getSubjectPosition(self)
+		return getSubjectPosition()
 	end
 end
 
@@ -215,7 +215,8 @@ FirstPersonCamera.isInFirstPerson = isInFirstPerson
 -- Called once to start the FirstPersonCamera logic.
 -- Binds and overloads everything necessary.
 local started = false
-function FirstPersonCamera.start(config: { SmoothRotation: boolean })
+export type Config = { SmoothRotation: boolean }
+function FirstPersonCamera.start(config: Config)
 	if started then
 		return
 	else
@@ -236,7 +237,9 @@ function FirstPersonCamera.start(config: { SmoothRotation: boolean })
 	)
 
 	local baseGetSubjectPosition = baseCamera.GetSubjectPosition
-	getSubjectPosition = wrapGetSubjectPosition(baseGetSubjectPosition)
+	getSubjectPosition = wrapGetSubjectPosition(function()
+		return baseGetSubjectPosition(baseCamera)
+	end)
 	baseCamera.GetSubjectPosition = getSubjectPosition
 
 	transparencyController.Update = wrapUpdateTransparency(transparencyController.Update)
