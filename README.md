@@ -15,7 +15,7 @@ modified to be more extensible.
 
 ## Installation
 
-You can download a build with the server and client code included from [GitHub Releases](https://github.com/fewkz/character-realism/releases)
+You can download a build with the server and client code included from [GitHub Releases](https://github.com/fewkz/character-realism/releases) or [Roblox Library](https://www.roblox.com/library/11082524851/Character-Realism)
 
 You can also add realism to your project via [Wally](https://wally.run/) by adding the following dependencies.
 ```lua

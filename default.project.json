@@ -1,5 +1,5 @@
 {
-    "name": "Realism",
+    "name": "CharacterRealism",
     "servePort": 5000,
     "tree": {
         "$className": "DataModel",
