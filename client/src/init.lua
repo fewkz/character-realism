@@ -399,6 +399,12 @@ export type Config = FirstPersonCamera.Config & {
 		["Right Leg"]: RotationFactor?,
 	},
 }
+export type Modifications = FirstPersonCamera.Modifications & {
+	PlatformStandDisablesTurning: boolean?,
+	PlatformStandLocksTurning: boolean?,
+	ShouldMountMaterialSounds: boolean?,
+	ShouldMountLookAngle: boolean?,
+}
 
 local RealismClient = {}
 
@@ -407,7 +413,7 @@ function RealismClient.start(config: Config)
 	if running then
 		return running
 	end
-	FirstPersonCamera.start({ SmoothRotation = config.SmoothRotation })
+	FirstPersonCamera.start(config)
 	local function onHumanoid(humanoid)
 		if config.ShouldMountLookAngle then
 			task.spawn(mountLookAngle, humanoid)
@@ -431,11 +437,24 @@ function RealismClient.start(config: Config)
 		conn1:Disconnect()
 		conn2:Disconnect()
 		running = nil
+		FirstPersonCamera.stop()
 	end
 
-	local function editConfig(modifications)
-		config.ShouldMountLookAngle = modifications.ShouldMountLookAngle
-		config.ShouldMountMaterialSounds = modifications.ShouldMountMaterialSounds
+	local function editConfig(modifications: Modifications)
+		if modifications.ShouldMountLookAngle ~= nil then
+			config.ShouldMountLookAngle = modifications.ShouldMountLookAngle
+		end
+		if modifications.ShouldMountMaterialSounds ~= nil then
+			config.ShouldMountMaterialSounds = modifications.ShouldMountMaterialSounds
+		end
+		if modifications.PlatformStandDisablesTurning ~= nil then
+			config.PlatformStandDisablesTurning =
+				modifications.PlatformStandDisablesTurning
+		end
+		if modifications.PlatformStandLocksTurning ~= nil then
+			config.PlatformStandLocksTurning = modifications.PlatformStandLocksTurning
+		end
+		FirstPersonCamera.edit(modifications)
 	end
 
 	running = { stop = stop, editConfig = editConfig }

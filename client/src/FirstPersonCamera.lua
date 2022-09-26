@@ -53,9 +53,12 @@ end
 
 -- This is an overload function for TransparencyController:IsValidPartToModify(part)
 -- You may call it directly if you'd like, as it does not have any external dependencies.
-local function isValidPartToModify(part: Instance)
+local function isValidPartToModify(config: Config, part: Instance)
 	if part:FindFirstAncestorOfClass("Tool") then
 		return false
+	end
+	if not config.BodyVisible and part:IsA("BasePart") then
+		return true
 	end
 	if part:IsA("Decal") and part.Parent then
 		part = part.Parent
@@ -95,6 +98,7 @@ local function isValidPartToModify(part: Instance)
 	return false
 end
 
+local forceTransparencyRefresh = false
 -- This is an overload function for TransparencyController:Update()
 local function wrapUpdateTransparency(updateTransparency)
 	return function(self: any, ...)
@@ -102,8 +106,8 @@ local function wrapUpdateTransparency(updateTransparency)
 
 		-- Hack to refresh the camera. This is neccessary since
 		-- SetSubject() is a object method
-		if self.ForceRefresh then
-			self.ForceRefresh = false
+		if forceTransparencyRefresh then
+			forceTransparencyRefresh = false
 			if self.SetSubject then
 				local camera = workspace.CurrentCamera
 				self:SetSubject(camera.CameraSubject)
@@ -218,13 +222,12 @@ FirstPersonCamera.isInFirstPerson = isInFirstPerson
 
 -- Called once to start the FirstPersonCamera logic.
 -- Binds and overloads everything necessary.
-local started = false
-export type Config = { SmoothRotation: boolean }
+export type Config = { SmoothRotation: boolean, BodyVisible: boolean }
+export type Modifications = { SmoothRotation: boolean?, BodyVisible: boolean? }
+local running: Running?
 function FirstPersonCamera.start(config: Config)
-	if started then
-		return
-	else
-		started = true
+	if running then
+		return running
 	end
 
 	local PlayerScripts = Players.LocalPlayer:WaitForChild("PlayerScripts")
@@ -240,23 +243,96 @@ function FirstPersonCamera.start(config: Config)
 		assert(transparencyControllerScript, "Couldn't get TransparencyController")
 	)
 
-	local baseGetSubjectPosition = baseCamera.GetSubjectPosition
-	getSubjectPosition = wrapGetSubjectPosition(function()
-		return baseGetSubjectPosition(baseCamera)
-	end)
-	baseCamera.GetSubjectPosition = getSubjectPosition
+	local baseBaseCameraGetSubjectPosition = baseCamera.GetSubjectPosition
+	local baseTransparencyControllerUpdate = transparencyController.Update
+	local baseTransparencyControllerIsValidPartToModify =
+		transparencyController.IsValidPartToModify
+	local baseTransparencyControllerSetupTransparency =
+		transparencyController.SetupTransparency
 
-	transparencyController.Update = wrapUpdateTransparency(transparencyController.Update)
-	transparencyController.IsValidPartToModify = function(_self, ...)
-		return isValidPartToModify(...)
+	local rotListener = UserGameSettings:GetPropertyChangedSignal("RotationType")
+	local smoothRotationConn
+	local function setSmoothRotation(new, old)
+		if new and not old then
+			-- Overrides for BaseCamera
+			getSubjectPosition = wrapGetSubjectPosition(function()
+				return baseBaseCameraGetSubjectPosition(baseCamera)
+			end)
+			baseCamera.GetSubjectPosition = getSubjectPosition
+			smoothRotationConn = rotListener:Connect(onRotationTypeChanged)
+			onRotationTypeChanged()
+		elseif old and not new then
+			assert(smoothRotationConn)
+			smoothRotationConn:Disconnect()
+			RunService:UnbindFromRenderStep("FirstPersonCamera")
+			local camera = workspace.CurrentCamera
+			local humanoid = camera.CameraSubject
+			if humanoid then
+				humanoid.AutoRotate = true
+			end
+			baseCamera.GetSubjectPosition = baseBaseCameraGetSubjectPosition
+		end
 	end
-	transparencyController.ForceRefresh = true -- ideally we shouldn't need this
-	transparencyController.SetupTransparency =
-		wrapSetupTransparency(transparencyController.SetupTransparency)
+	setSmoothRotation(config.SmoothRotation, false)
 
-	if config.SmoothRotation then
-		local rotListener = UserGameSettings:GetPropertyChangedSignal("RotationType")
-		rotListener:Connect(onRotationTypeChanged)
+	local function setBodyVisible(new, old)
+		if new and not old then
+			-- Overrides for TransparencyController
+			transparencyController.Update =
+				wrapUpdateTransparency(baseTransparencyControllerUpdate)
+			transparencyController.IsValidPartToModify = function(_self, ...)
+				return isValidPartToModify(config, ...)
+			end
+			transparencyController.SetupTransparency =
+				wrapSetupTransparency(baseTransparencyControllerSetupTransparency)
+		elseif old and not new then
+			transparencyController.IsValidPartToModify =
+				baseTransparencyControllerIsValidPartToModify
+			transparencyController.SetupTransparency =
+				baseTransparencyControllerSetupTransparency
+			-- This is required so that it can detect that forceTransparencyRefresh changed.
+			-- It has to schuled last on the next heartbeat. It's kind of hacky, but having
+			-- to use forceTransparencyRefresh at all is hacky.
+			task.delay(nil, task.defer, function()
+				transparencyController.Update = baseTransparencyControllerUpdate
+			end)
+		end
+		forceTransparencyRefresh = true -- ideally we shouldn't need this
+	end
+	setBodyVisible(config.BodyVisible, false)
+
+	local function stop()
+		smoothRotationConn:Disconnect()
+		setSmoothRotation(false, config.SmoothRotation)
+		setBodyVisible(false, config.BodyVisible)
+	end
+
+	local function editConfig(modifications: Modifications)
+		if modifications.SmoothRotation ~= nil then
+			setSmoothRotation(modifications.SmoothRotation, config.SmoothRotation)
+			config.SmoothRotation = modifications.SmoothRotation
+		end
+		if modifications.BodyVisible ~= nil then
+			setBodyVisible(modifications.BodyVisible, config.BodyVisible)
+			config.BodyVisible = modifications.BodyVisible
+		end
+	end
+
+	running = { stop = stop, editConfig = editConfig }
+	assert(running)
+	return running
+end
+type Running = typeof(FirstPersonCamera.start({} :: any))
+
+function FirstPersonCamera.edit(modifications)
+	if running then
+		running.editConfig(modifications)
+	end
+end
+
+function FirstPersonCamera.stop()
+	if running then
+		running.stop()
 	end
 end
 

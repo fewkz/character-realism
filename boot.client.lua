@@ -6,6 +6,7 @@ RealismClient.start({
 	ShouldMountMaterialSounds = true,
 	ShouldMountLookAngle = true,
 	SmoothRotation = true,
+	BodyVisible = true,
 	PlatformStandDisablesTurning = true,
 	PlatformStandLocksTurning = false,
 	MaterialSoundFallback = Enum.Material.Concrete,
