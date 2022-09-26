@@ -13,5 +13,6 @@ lookAnglesSync.Parent = ReplicatedStorage
 local RealismServer = require(script.RealismServer)
 
 RealismServer.start({
+	BindTag = "RealismHook",
 	LookAnglesSyncRemoteEvent = lookAnglesSync,
 })

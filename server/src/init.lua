@@ -1,30 +1,35 @@
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 
-local function onCharacterAdded(character: Model)
+local function onCharacterAdded(character: Model, config: Config)
 	local humanoid = character:WaitForChild("Humanoid", 4)
 	assert(humanoid, "Humanoid for " .. character.Name .. " couldn't be found")
-	CollectionService:AddTag(humanoid, "RealismHook")
+	CollectionService:AddTag(humanoid, config.BindTag)
 end
 
-local function onPlayerAdded(player: Player)
-	player.CharacterAdded:Connect(onCharacterAdded)
+local function onPlayerAdded(player: Player, config: Config)
+	player.CharacterAdded:Connect(function(character)
+		onCharacterAdded(character, config)
+	end)
 	if player.Character then
-		onCharacterAdded(player.Character)
+		onCharacterAdded(player.Character, config)
 	end
 end
 
 local RealismServer = {}
 
+export type Config = { LookAnglesSyncRemoteEvent: RemoteEvent, BindTag: string }
 local stop
-function RealismServer.start(config: { LookAnglesSyncRemoteEvent: RemoteEvent })
+function RealismServer.start(config: Config)
 	if stop then
 		return
 	end
 
-	local conn1 = Players.PlayerAdded:Connect(onPlayerAdded)
+	local conn1 = Players.PlayerAdded:Connect(function(player)
+		onPlayerAdded(player, config)
+	end)
 	for _, player in Players:GetPlayers() do
-		onPlayerAdded(player)
+		onPlayerAdded(player, config)
 	end
 
 	local conn2 = config.LookAnglesSyncRemoteEvent.OnServerEvent:Connect(
