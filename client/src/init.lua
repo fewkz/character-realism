@@ -57,7 +57,7 @@ local function addMotor(rotator: Rotator, motor: Motor6D, rigType: Enum.Humanoid
 		motor.Changed:Wait()
 	end
 	local data: Motor
-	if rigType == Enum.RigType.R15 then
+	if rigType == Enum.HumanoidRigType.R15 then
 		local origin = motor.Part0:WaitForChild(motor.Name .. "RigAttachment", 4)
 		assert(origin, "Couldn't get " .. motor.Name .. "RigAttachment")
 		data = { Motor = motor, Origin = origin }
