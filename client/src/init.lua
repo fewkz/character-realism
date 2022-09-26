@@ -365,7 +365,7 @@ local function mountMaterialSounds(humanoid: Humanoid, config: Config)
 	running.RollOffMaxDistance = 50
 end
 
-type ResolutionFactor = { Pitch: number, Yaw: number }
+type RotationFactor = { Pitch: number, Yaw: number }
 type Config = {
 	BindTag: string,
 	LookAnglesSyncRemoteEvent: RemoteEvent,
@@ -379,17 +379,17 @@ type Config = {
 	-- joint, based on the pitch/yaw look angles
 	RotationFactors: {
 		-- R6 & R15
-		["Head"]: ResolutionFactor,
+		["Head"]: RotationFactor?,
 		-- R15
-		["UpperTorso"]: ResolutionFactor,
-		["LeftUpperArm"]: ResolutionFactor,
-		["RightUpperArm"]: ResolutionFactor,
+		["UpperTorso"]: RotationFactor?,
+		["LeftUpperArm"]: RotationFactor?,
+		["RightUpperArm"]: RotationFactor?,
 		-- R6
-		["Torso"]: ResolutionFactor,
-		["Left Arm"]: ResolutionFactor,
-		["Right Arm"]: ResolutionFactor,
-		["Left Leg"]: ResolutionFactor,
-		["Right Leg"]: ResolutionFactor,
+		["Torso"]: RotationFactor?,
+		["Left Arm"]: RotationFactor?,
+		["Right Arm"]: RotationFactor?,
+		["Left Leg"]: RotationFactor?,
+		["Right Leg"]: RotationFactor?,
 	},
 }
 
