@@ -31,6 +31,12 @@ CharacterRealismClient = "fewkz/character-realism-client@0.1.6"
 CharacterRealismServer = "fewkz/character-realism-server@0.1.1"
 ```
 
+## Demo
+
+The root of this project contains demo Rojo project for testing out character
+realism. This demo is available on Roblox at
+https://roblox.com/games/11058600821
+
 ## Licensing
 
 _Realism_ is licensed under v2.0 of the Mozilla Public License. The intent of
