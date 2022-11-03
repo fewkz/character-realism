@@ -1,6 +1,6 @@
 {
-    "name": "character-realism-client",
-    "tree": {
-        "$path": "src"
-    }
+  "name": "character-realism-client",
+  "tree": {
+    "$path": "src"
+  }
 }

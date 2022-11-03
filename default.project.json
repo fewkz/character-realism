@@ -1,38 +1,38 @@
 {
-    "name": "CharacterRealism Demo",
-    "servePort": 5000,
-    "tree": {
-        "$className": "DataModel",
-        "ReplicatedStorage": {
-            "Plasma": {
-                "$path": "plasma"
-            },
-            "RealismLookAnglesSync": {
-                "$className": "RemoteEvent"
-            }
-        },
-        "ServerStorage": {
-            "CharacterRealism": {
-                "$path": "model.project.json"
-            }
-        },
-        "ServerScriptService": {
-            "RealismServer": {
-                "$path": "demo.server.lua",
-                "RealismServer": {
-                    "$path": "server"
-                }
-            }
-        },
-        "StarterPlayer": {
-            "StarterPlayerScripts": {
-                "RealismClient": {
-                    "$path": "demo.client.lua",
-                    "RealismClient": {
-                        "$path": "client"
-                    }
-                }
-            }
+  "name": "CharacterRealism Demo",
+  "servePort": 5000,
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Plasma": {
+        "$path": "plasma"
+      },
+      "RealismLookAnglesSync": {
+        "$className": "RemoteEvent"
+      }
+    },
+    "ServerStorage": {
+      "CharacterRealism": {
+        "$path": "model.project.json"
+      }
+    },
+    "ServerScriptService": {
+      "RealismServer": {
+        "$path": "demo.server.lua",
+        "RealismServer": {
+          "$path": "server"
         }
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "RealismClient": {
+          "$path": "demo.client.lua",
+          "RealismClient": {
+            "$path": "client"
+          }
+        }
+      }
     }
+  }
 }
