@@ -1,0 +1,18 @@
+{
+  "name": "CharacterRealism",
+  "tree": {
+      "$className": "Folder",
+      "RealismClient": {
+          "$path": "model.client.lua",
+          "RealismClient": {
+              "$path": "client"
+          }
+      },
+      "RealismServer": {
+          "$path": "model.server.lua",
+          "RealismServer": {
+              "$path": "server"
+          }
+      }
+  }
+}

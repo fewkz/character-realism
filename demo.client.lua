@@ -15,9 +15,7 @@ local smoothRotation = true
 local function start()
 	RealismClient.start({
 		BindTag = "RealismHook",
-		LookAnglesSyncRemoteEvent = ReplicatedStorage:WaitForChild(
-			"RealismLookAnglesSync"
-		),
+		LookAnglesSyncRemoteEvent = ReplicatedStorage.RealismLookAnglesSync,
 		ShouldMountMaterialSounds = true,
 		ShouldMountLookAngle = true,
 		SmoothRotation = smoothRotation,

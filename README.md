@@ -19,10 +19,6 @@ material-based walking sounds.
 
 ## Installation
 
-You can download a build with the server and client code included from
-[GitHub Releases](https://github.com/fewkz/character-realism/releases) or
-[Roblox Library](https://www.roblox.com/library/11082524851/Character-Realism)
-
 You can also add realism to your project via [Wally](https://wally.run/) by
 adding the following dependencies.
 
@@ -31,9 +27,20 @@ CharacterRealismClient = "fewkz/character-realism-client@0.1.6"
 CharacterRealismServer = "fewkz/character-realism-server@0.1.1"
 ```
 
+You then need to start the realism client and server with configuration. For
+examples of configuring realism, see `model.client.lua` and `model.server.lua`.
+
+You can also download a model with client and server scripts that already
+configure realism from
+[GitHub Releases](https://github.com/fewkz/character-realism/releases) or
+[Roblox Library](https://www.roblox.com/library/11082524851/Character-Realism),
+you just need to put `RealismServer` in `ServerScriptService` and
+`RealismClient` in `StarterPlayerScripts`. You can then change the configuration
+in the scripts yourself. This model is build from `model.project.json`.
+
 ## Demo
 
-The root of this project contains demo Rojo project for testing out character
+The root of this project contains a demo Rojo project for testing out character
 realism. This demo is available on Roblox at
 https://roblox.com/games/11058600821
 

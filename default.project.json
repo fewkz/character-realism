@@ -1,16 +1,24 @@
 {
-    "name": "CharacterRealism",
+    "name": "CharacterRealism Demo",
     "servePort": 5000,
     "tree": {
         "$className": "DataModel",
         "ReplicatedStorage": {
             "Plasma": {
                 "$path": "plasma"
+            },
+            "RealismLookAnglesSync": {
+                "$className": "RemoteEvent"
+            }
+        },
+        "ServerStorage": {
+            "CharacterRealism": {
+                "$path": "model.project.json"
             }
         },
         "ServerScriptService": {
             "RealismServer": {
-                "$path": "boot.server.lua",
+                "$path": "demo.server.lua",
                 "RealismServer": {
                     "$path": "server"
                 }
@@ -19,7 +27,7 @@
         "StarterPlayer": {
             "StarterPlayerScripts": {
                 "RealismClient": {
-                    "$path": "boot.client.lua",
+                    "$path": "demo.client.lua",
                     "RealismClient": {
                         "$path": "client"
                     }
