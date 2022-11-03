@@ -37,6 +37,14 @@ The root of this project contains demo Rojo project for testing out character
 realism. This demo is available on Roblox at
 https://roblox.com/games/11058600821
 
+This demo project requires [Plasma](https://github.com/evaera/plasma), an
+immediate mode UI library, for controlling the character realism configuration.
+You should install plasma using Git like so:
+
+```
+git clone --depth 1 --branch v0.4.2 https://github.com/evaera/plasma.git plasma
+```
+
 ## Licensing
 
 _Realism_ is licensed under v2.0 of the Mozilla Public License. The intent of

@@ -2,3 +2,6 @@ CharacterRealism.rbxm
 
 # luau-lsp extension
 sourcemap.json
+
+# Plasma is used for demo but shouldn't be included in the repo
+plasma

@@ -3,6 +3,11 @@
     "servePort": 5000,
     "tree": {
         "$className": "DataModel",
+        "ReplicatedStorage": {
+            "Plasma": {
+                "$path": "plasma"
+            }
+        },
         "ServerScriptService": {
             "RealismServer": {
                 "$path": "boot.server.lua",
