@@ -23,7 +23,7 @@ You can also add realism to your project via [Wally](https://wally.run/) by
 adding the following dependencies.
 
 ```lua
-CharacterRealismClient = "fewkz/character-realism-client@0.1.6"
+CharacterRealismClient = "fewkz/character-realism-client@0.2.0"
 CharacterRealismServer = "fewkz/character-realism-server@0.1.1"
 ```
 
