@@ -4,6 +4,7 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 local FirstPersonCamera = require(script.FirstPersonCamera)
+local FirstPersonShadows = require(script.FirstPersonShadows)
 
 local XZ_VECTOR3 = Vector3.new(1, 0, 1)
 
@@ -379,6 +380,10 @@ export type Config = FirstPersonCamera.Config & {
 	PlatformStandLocksTurning: boolean,
 	ShouldMountMaterialSounds: boolean,
 	ShouldMountLookAngle: boolean,
+	-- Whether to use the experimental first person shadows feature.
+	-- These currently only support R6 and only work in Future and
+	-- ShadowMap lighting modes.
+	FirstPersonShadowsBeta: boolean?,
 	-- A dictionary mapping materials to walking sound ids.
 	MaterialSounds: { [Enum.Material]: number },
 	MaterialSoundFallback: Enum.Material,
@@ -404,6 +409,7 @@ export type Modifications = FirstPersonCamera.Modifications & {
 	PlatformStandLocksTurning: boolean?,
 	ShouldMountMaterialSounds: boolean?,
 	ShouldMountLookAngle: boolean?,
+	FirstPersonShadowsBeta: boolean?,
 }
 
 local RealismClient = {}
@@ -433,11 +439,16 @@ function RealismClient.start(config: Config)
 	end)
 	config.LookAnglesSyncRemoteEvent.OnClientEvent:Connect(onLookReceive)
 
+	if config.FirstPersonShadowsBeta then
+		FirstPersonShadows.start()
+	end
+
 	local function stop()
 		conn1:Disconnect()
 		conn2:Disconnect()
 		running = nil
 		FirstPersonCamera.stop()
+		FirstPersonShadows.stop()
 	end
 
 	local function editConfig(modifications: Modifications)
@@ -453,6 +464,14 @@ function RealismClient.start(config: Config)
 		end
 		if modifications.PlatformStandLocksTurning ~= nil then
 			config.PlatformStandLocksTurning = modifications.PlatformStandLocksTurning
+		end
+		if modifications.FirstPersonShadowsBeta ~= nil then
+			config.FirstPersonShadowsBeta = modifications.FirstPersonShadowsBeta
+			if modifications.FirstPersonShadowsBeta then
+				FirstPersonShadows.start()
+			else
+				FirstPersonShadows.stop()
+			end
 		end
 		FirstPersonCamera.edit(modifications)
 	end

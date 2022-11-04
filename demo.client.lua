@@ -11,6 +11,7 @@ StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
 
 local bodyVisible = true
 local smoothRotation = true
+local firstPersonShadows = true
 
 local function start()
 	RealismClient.start({
@@ -20,6 +21,7 @@ local function start()
 		ShouldMountLookAngle = true,
 		SmoothRotation = smoothRotation,
 		BodyVisible = bodyVisible,
+		FirstPersonShadowsBeta = firstPersonShadows,
 		PlatformStandDisablesTurning = true,
 		PlatformStandLocksTurning = false,
 		MaterialSoundFallback = Enum.Material.Concrete,
@@ -111,9 +113,33 @@ screenGui.Parent = Players.LocalPlayer.PlayerGui
 
 local root = Plasma.new(screenGui)
 
+local oldAccessories = {}
+
+local function removeRandomAccessory()
+	local humanoid: Humanoid? = if Players.LocalPlayer.Character
+		then Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+		else nil
+	if humanoid then
+		local accessories = humanoid:GetAccessories()
+		if #accessories > 0 then
+			local accessory = accessories[math.random(1, #accessories)]
+			table.insert(oldAccessories, accessory)
+			accessory.Parent = nil
+		end
+	end
+end
+
+local function addRandomAccessory()
+	if #oldAccessories > 0 then
+		local accessory =
+			assert(table.remove(oldAccessories, math.random(1, #oldAccessories)))
+		accessory.Parent = Players.LocalPlayer.Character
+	end
+end
+
 RunService.Heartbeat:Connect(function()
 	Plasma.start(root, function()
-		Plasma.window("Realism Config", function()
+		Plasma.window({ title = "Realism Config", resizable = false }, function()
 			if Plasma.checkbox("Running", { checked = running }):clicked() then
 				running = not running
 				if running then
@@ -132,6 +158,33 @@ RunService.Heartbeat:Connect(function()
 			then
 				smoothRotation = not smoothRotation
 				RealismClient.edit({ SmoothRotation = smoothRotation })
+			end
+			if
+				Plasma.checkbox("First Person Shadows", { checked = firstPersonShadows })
+					:clicked()
+			then
+				firstPersonShadows = not firstPersonShadows
+				RealismClient.edit({
+					FirstPersonShadowsBeta = firstPersonShadows,
+				})
+			end
+		end)
+		Plasma.window({ title = "Accessory Tester", resizable = false }, function()
+			Plasma.label(
+				"First Person Shadows are designed to work"
+					.. "\nwith accessories being added or removed."
+					.. "\nUse this window for testing out adding and"
+					.. "\nremoving accessories."
+			)
+			local everRemoved, setEverRemoved = Plasma.useState(false)
+			if Plasma.button("Remove random accessory"):clicked() then
+				setEverRemoved(true)
+				removeRandomAccessory()
+			end
+			if everRemoved then
+				if Plasma.button("Add back accessory"):clicked() then
+					addRandomAccessory()
+				end
 			end
 		end)
 	end)
