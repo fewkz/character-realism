@@ -19,6 +19,7 @@ local function start()
 		ShouldMountMaterialSounds = true,
 		ShouldMountLookAngle = true,
 		SmoothRotation = smoothRotation,
+		MoveDirectionFactor = 0.25,
 		BodyVisible = bodyVisible,
 		PlatformStandDisablesTurning = true,
 		PlatformStandLocksTurning = false,
