@@ -18,8 +18,10 @@ type Rotator = {
 
 local rotators: { [Model]: Rotator } = {}
 
-local function isInFirstPerson()
-	return FirstPersonCamera.isInFirstPerson()
+local function isInFirstPerson(camera: Camera)
+	return if camera.CameraType ~= Enum.CameraType.Scriptable
+		then (camera.Focus.Position - camera.CFrame.Position).Magnitude <= 1
+		else false
 end
 
 local function round(number: number, factor: number)
@@ -87,7 +89,7 @@ end
 -- If no lookVector is provided, the camera's lookVector is used instead.
 -- useDir (-1 or 1) can be given to force whether the direction is flipped or not.
 local function computeLookAngle(config: Config)
-	local inFirstPerson = isInFirstPerson()
+	local inFirstPerson = isInFirstPerson(workspace.CurrentCamera)
 	local yaw, pitch, dir = 0, 0, 1
 
 	local lookVector = workspace.CurrentCamera.CFrame.LookVector
@@ -215,7 +217,7 @@ local function updateCharacter(delta, config: Config, character, rotator: Rotato
 		local yaw = yawState.Current
 
 		if character == Players.LocalPlayer.Character and name == "Head" then
-			if isInFirstPerson() then
+			if isInFirstPerson(workspace.CurrentCamera) then
 				pitch = pitchState.Goal
 				yaw = yawState.Goal
 			end

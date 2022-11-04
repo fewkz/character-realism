@@ -19,15 +19,10 @@ local function isHeadAttachment(attachment: Attachment)
 		or attachment.Name == "HatAttachment"
 end
 
-local function isInFirstPerson()
-	local camera = workspace.CurrentCamera
-	if camera and camera.CameraType ~= Enum.CameraType.Scriptable then
-		local focus = camera.Focus.Position
-		local origin = camera.CFrame.Position
-		return (focus - origin).Magnitude <= 1
-	else
-		return false
-	end
+local function isInFirstPerson(camera: Camera)
+	return if camera.CameraType ~= Enum.CameraType.Scriptable
+		then (camera.Focus.Position - camera.CFrame.Position).Magnitude <= 1
+		else false
 end
 
 -- Wraps BaseCamera:GetSubjectPosition() to offset the camera
@@ -36,7 +31,7 @@ local function wrapGetSubjectPosition(getSubjectPosition)
 	return function()
 		local subject = workspace.CurrentCamera.CameraSubject
 		if
-			isInFirstPerson()
+			isInFirstPerson(workspace.CurrentCamera)
 			and typeof(subject) == "Instance"
 			and subject:IsA("Humanoid")
 			and subject.Health > 0
@@ -139,10 +134,10 @@ local function wrapSetupTransparency(setupTransparency)
 	end
 end
 
-local function setupSmoothRotation(config: Config)
-	local camera = workspace.CurrentCamera
+local function setupSmoothRotation(camera: Camera, config: Config)
 	local humanoid: Humanoid?
-	local conn1 = camera:GetPropertyChangedSignal("CameraSubject"):Connect(function()
+
+	local function setupCameraSubject()
 		local cameraSubject: Instance? = camera.CameraSubject
 		if cameraSubject and cameraSubject:IsA("Humanoid") then
 			humanoid = cameraSubject
@@ -156,7 +151,11 @@ local function setupSmoothRotation(config: Config)
 		else
 			humanoid = nil
 		end
-	end)
+	end
+	local conn1 =
+		camera:GetPropertyChangedSignal("CameraSubject"):Connect(setupCameraSubject)
+	setupCameraSubject()
+
 	local conn2 = UserGameSettings:GetPropertyChangedSignal("RotationType")
 		:Connect(function()
 			local rotationType = UserGameSettings.RotationType
@@ -164,6 +163,11 @@ local function setupSmoothRotation(config: Config)
 				humanoid.AutoRotate = rotationType ~= Enum.RotationType.CameraRelative
 			end
 		end)
+	local rotationType = UserGameSettings.RotationType
+	if humanoid then
+		humanoid.AutoRotate = rotationType ~= Enum.RotationType.CameraRelative
+	end
+
 	RunService:BindToRenderStep("FirstPersonCamera", 1000, function(delta: number)
 		local rotationType = UserGameSettings.RotationType
 		if
@@ -224,7 +228,7 @@ local function setupSmoothRotation(config: Config)
 			end
 		end
 
-		if isInFirstPerson() then
+		if isInFirstPerson(camera) then
 			local cf = camera.CFrame
 			local headPos = getSubjectPosition()
 			if headPos then
@@ -237,6 +241,9 @@ local function setupSmoothRotation(config: Config)
 		end
 	end)
 	return function()
+		if humanoid then
+			humanoid.AutoRotate = true
+		end
 		conn1:Disconnect()
 		conn2:Disconnect()
 		RunService:UnbindFromRenderStep("FirstPersonCamera")
@@ -244,8 +251,6 @@ local function setupSmoothRotation(config: Config)
 end
 
 local FirstPersonCamera = {}
-
-FirstPersonCamera.isInFirstPerson = isInFirstPerson
 
 -- Called once to start the FirstPersonCamera logic.
 -- Binds and overloads everything necessary.
@@ -285,7 +290,6 @@ function FirstPersonCamera.start(config: Config)
 	local baseTransparencyControllerSetupTransparency =
 		transparencyController.SetupTransparency
 
-	-- local rotListener = UserGameSettings:GetPropertyChangedSignal("RotationType")
 	local cleanupSmoothRotation
 	local function setSmoothRotation(new, old)
 		if new and not old then
@@ -294,14 +298,9 @@ function FirstPersonCamera.start(config: Config)
 				return baseBaseCameraGetSubjectPosition(baseCamera)
 			end)
 			baseCamera.GetSubjectPosition = getSubjectPosition
-			cleanupSmoothRotation = setupSmoothRotation(config)
+			cleanupSmoothRotation = setupSmoothRotation(workspace.CurrentCamera, config)
 		elseif old and not new then
 			cleanupSmoothRotation()
-			local camera = workspace.CurrentCamera
-			local humanoid = camera.CameraSubject
-			if humanoid then
-				humanoid.AutoRotate = true
-			end
 			baseCamera.GetSubjectPosition = baseBaseCameraGetSubjectPosition
 		end
 	end
