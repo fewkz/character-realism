@@ -32,7 +32,16 @@ function FirstPersonShadows.start()
 
 	local mirrorMap = {}
 	local function descendantSetup(descendant: Instance)
-		if descendant:IsA("Part") and descendant.Transparency < 1 then
+		local bodyPart = if descendant.Parent == character
+			then if descendant.Name == "Torso"
+				then Enum.BodyPart.Torso
+				elseif descendant.Name == "Left Arm" then Enum.BodyPart.LeftArm
+				elseif descendant.Name == "Right Arm" then Enum.BodyPart.RightArm
+				elseif descendant.Name == "Left Leg" then Enum.BodyPart.LeftLeg
+				elseif descendant.Name == "Right Leg" then Enum.BodyPart.RightLeg
+				else nil
+			else nil
+		if descendant:IsA("Part") and (bodyPart or assert(descendant.Parent):IsA("Accessory")) then
 			local mirrorPart = descendant:Clone()
 			mirrorPart.Anchored = true
 			mirrorPart.Massless = true
@@ -56,13 +65,6 @@ function FirstPersonShadows.start()
 			end)
 
 			-- Adds any CharacterMeshes that are in the character to the mirror part.
-			local bodyPart = if descendant.Name == "Torso"
-				then Enum.BodyPart.Torso
-				elseif descendant.Name == "Left Arm" then Enum.BodyPart.LeftArm
-				elseif descendant.Name == "Right Arm" then Enum.BodyPart.RightArm
-				elseif descendant.Name == "Left Leg" then Enum.BodyPart.LeftLeg
-				elseif descendant.Name == "Right Leg" then Enum.BodyPart.RightLeg
-				else nil
 			if bodyPart then
 				local conn = character.ChildAdded:Connect(function(characterChild)
 					if
