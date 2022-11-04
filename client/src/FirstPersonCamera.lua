@@ -48,6 +48,7 @@ end
 
 -- This is an overload function for TransparencyController:IsValidPartToModify(part)
 -- You may call it directly if you'd like, as it does not have any external dependencies.
+-- This function is used to determine which parts should be transparent in first person.
 local function isValidPartToModify(config: Config, part: Instance)
 	if part:FindFirstAncestorOfClass("Tool") then
 		return false
