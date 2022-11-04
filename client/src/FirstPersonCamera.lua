@@ -139,80 +139,92 @@ local function wrapSetupTransparency(setupTransparency)
 	end
 end
 
--- This indicates the user is in first person or shift lock
--- and needs to have its first person movement smoothened out.
-local function onRotationTypeChanged()
+local function setupSmoothRotation(config: Config)
 	local camera = workspace.CurrentCamera
-	if
-		typeof(camera.CameraSubject) == "Instance"
-		and camera.CameraSubject:IsA("Humanoid")
-	then
-		local humanoid = camera.CameraSubject
-		humanoid.AutoRotate = UserGameSettings.RotationType
-			~= Enum.RotationType.CameraRelative
-		if not humanoid.AutoRotate then
-			RunService:BindToRenderStep("FirstPersonCamera", 1000, function(delta)
-				if
-					humanoid.AutoRotate
-					or not humanoid:IsDescendantOf(game)
-					or humanoid.SeatPart and humanoid.SeatPart:IsA("VehicleSeat")
-				then
-					RunService:UnbindFromRenderStep("FirstPersonCamera")
-					return
-				end
+	local humanoid: Humanoid?
+	local conn1 = camera:GetPropertyChangedSignal("CameraSubject"):Connect(function()
+		local cameraSubject: Instance? = camera.CameraSubject
+		if cameraSubject and cameraSubject:IsA("Humanoid") then
+			humanoid = cameraSubject
 
-				if camera.CameraType.Name == "Scriptable" then
-					return
-				end
-
-				local rootPart: BasePart? = humanoid.RootPart
-				local isGrounded = rootPart and rootPart:IsGrounded()
-
-				if rootPart and not isGrounded then
-					local state = humanoid:GetState()
-					local canRotate = true
-
-					if DONT_ROTATE_STATES[state] then
-						canRotate = false
-					end
-
-					if
-						humanoid.Sit and not humanoid.SeatPart or humanoid.PlatformStand
-					then
-						canRotate = false
-					elseif humanoid.Sit and humanoid.SeatPart then
-						local root = rootPart:GetRootPart()
-
-						if root ~= rootPart then
-							canRotate = false
-						end
-					end
-
-					if canRotate then
-						local pos = rootPart.Position
-						local step = math.min(0.2, (delta * 40) / 3)
-
-						local look = camera.CFrame.LookVector
-						look = (look * XZ_VECTOR3).Unit
-
-						local cf = CFrame.new(pos, pos + look)
-						rootPart.CFrame = rootPart.CFrame:Lerp(cf, step)
-					end
-				end
-
-				if isInFirstPerson() then
-					local cf = camera.CFrame
-					local headPos = getSubjectPosition()
-					if headPos then
-						local offset = (headPos - cf.Position)
-						cf += offset
-
-						camera.CFrame = cf
-						camera.Focus += offset
-					end
-				end
-			end)
+			local rotationType = UserGameSettings.RotationType
+			cameraSubject.AutoRotate = rotationType ~= Enum.RotationType.CameraRelative
+		elseif cameraSubject and cameraSubject:IsA("VehicleSeat") then
+			-- CameraSubject gets set to VehicleSeat when you sit on a VehicleSeat.
+			-- We want to set the CameraSubject to use the Humanoid instead.
+			camera.CameraSubject = cameraSubject.Occupant
+		else
+			humanoid = nil
 		end
+	end)
+	local conn2 = UserGameSettings:GetPropertyChangedSignal("RotationType")
+		:Connect(function()
+			local rotationType = UserGameSettings.RotationType
+			if humanoid then
+				humanoid.AutoRotate = rotationType ~= Enum.RotationType.CameraRelative
+			end
+		end)
+	RunService:BindToRenderStep("FirstPersonCamera", 1000, function(delta: number)
+		local rotationType = UserGameSettings.RotationType
+		if
+			not humanoid
+			or rotationType ~= Enum.RotationType.CameraRelative
+			or not humanoid:IsDescendantOf(game)
+			or camera.CameraType == Enum.CameraType.Scriptable
+		then
+			return
+		end
+		assert(humanoid)
+
+		local rootPart: BasePart? = humanoid.RootPart
+		local isGrounded = rootPart and rootPart:IsGrounded()
+
+		if rootPart and not isGrounded then
+			local state = humanoid:GetState()
+			local canRotate = true
+
+			if DONT_ROTATE_STATES[state] then
+				canRotate = false
+			end
+
+			if humanoid.Sit and not humanoid.SeatPart or humanoid.PlatformStand then
+				canRotate = false
+			elseif humanoid.Sit and humanoid.SeatPart then
+				local root = rootPart:GetRootPart()
+
+				if root ~= rootPart then
+					canRotate = false
+				end
+			end
+
+			if canRotate then
+				local pos = rootPart.Position
+				local step = math.min(0.2, (delta * 40) / 3)
+
+				local look = camera.CFrame.LookVector
+				look = (look * XZ_VECTOR3).Unit
+
+				local cf = CFrame.new(pos, pos + look)
+				rootPart.CFrame = rootPart.CFrame:Lerp(cf, step)
+			end
+		end
+
+		if isInFirstPerson() then
+			local cf = camera.CFrame
+			local headPos = getSubjectPosition()
+			if headPos then
+				local offset = (headPos - cf.Position)
+				cf += offset
+
+				camera.CFrame = cf
+				camera.Focus += offset
+			end
+		end
+	end)
+	return function()
+		conn1:Disconnect()
+		conn2:Disconnect()
+		RunService:UnbindFromRenderStep("FirstPersonCamera")
 	end
 end
 
@@ -250,8 +262,8 @@ function FirstPersonCamera.start(config: Config)
 	local baseTransparencyControllerSetupTransparency =
 		transparencyController.SetupTransparency
 
-	local rotListener = UserGameSettings:GetPropertyChangedSignal("RotationType")
-	local smoothRotationConn
+	-- local rotListener = UserGameSettings:GetPropertyChangedSignal("RotationType")
+	local cleanupSmoothRotation
 	local function setSmoothRotation(new, old)
 		if new and not old then
 			-- Overrides for BaseCamera
@@ -259,12 +271,9 @@ function FirstPersonCamera.start(config: Config)
 				return baseBaseCameraGetSubjectPosition(baseCamera)
 			end)
 			baseCamera.GetSubjectPosition = getSubjectPosition
-			smoothRotationConn = rotListener:Connect(onRotationTypeChanged)
-			onRotationTypeChanged()
+			cleanupSmoothRotation = setupSmoothRotation(config)
 		elseif old and not new then
-			assert(smoothRotationConn)
-			smoothRotationConn:Disconnect()
-			RunService:UnbindFromRenderStep("FirstPersonCamera")
+			cleanupSmoothRotation()
 			local camera = workspace.CurrentCamera
 			local humanoid = camera.CameraSubject
 			if humanoid then
@@ -302,7 +311,7 @@ function FirstPersonCamera.start(config: Config)
 	setBodyVisible(config.BodyVisible, false)
 
 	local function stop()
-		smoothRotationConn:Disconnect()
+		cleanupSmoothRotation()
 		setSmoothRotation(false, config.SmoothRotation)
 		setBodyVisible(false, config.BodyVisible)
 	end
