@@ -67,7 +67,7 @@ local function start()
 				Yaw = 0.8,
 			},
 			["UpperTorso"] = {
-				Pitch = 0.5,
+				Pitch = 0.2,
 				Yaw = 0.5,
 			},
 			["LeftUpperArm"] = {
