@@ -7,6 +7,11 @@ RealismClient.start({
 	ShouldMountMaterialSounds = true,
 	ShouldMountLookAngle = true,
 	SmoothRotation = true,
+
+	-- Controls how much the players move direction factors into
+	-- the direction their avatar faces while in first person.
+	MoveDirectionFactor = 0.25,
+
 	BodyVisible = true,
 	PlatformStandDisablesTurning = true,
 	PlatformStandLocksTurning = false,

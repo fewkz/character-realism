@@ -201,8 +201,23 @@ local function setupSmoothRotation(config: Config)
 				local pos = rootPart.Position
 				local step = math.min(0.2, (delta * 40) / 3)
 
-				local look = camera.CFrame.LookVector
-				look = (look * XZ_VECTOR3).Unit
+				local cameraDirection = (camera.CFrame.LookVector * XZ_VECTOR3).Unit
+
+				local moveDirection
+				local xzVelocity = rootPart.AssemblyLinearVelocity * XZ_VECTOR3
+				if xzVelocity.Magnitude > 0.1 then
+					local invDot = 1 - math.abs(cameraDirection:Dot(xzVelocity.Unit))
+					moveDirection = (
+						cameraDirection * (1 - invDot) + xzVelocity.Unit * invDot
+					)
+				else
+					moveDirection = cameraDirection
+				end
+
+				local look = (
+					cameraDirection * (1 - config.MoveDirectionFactor)
+					+ moveDirection * config.MoveDirectionFactor
+				).Unit
 
 				local cf = CFrame.new(pos, pos + look)
 				rootPart.CFrame = rootPart.CFrame:Lerp(cf, step)
@@ -234,8 +249,16 @@ FirstPersonCamera.isInFirstPerson = isInFirstPerson
 
 -- Called once to start the FirstPersonCamera logic.
 -- Binds and overloads everything necessary.
-export type Config = { SmoothRotation: boolean, BodyVisible: boolean }
-export type Modifications = { SmoothRotation: boolean?, BodyVisible: boolean? }
+export type Config = {
+	SmoothRotation: boolean,
+	BodyVisible: boolean,
+	MoveDirectionFactor: number,
+}
+export type Modifications = {
+	SmoothRotation: boolean?,
+	BodyVisible: boolean?,
+	MoveDirectionFactor: number?,
+}
 local running: Running?
 function FirstPersonCamera.start(config: Config)
 	if running then
@@ -324,6 +347,9 @@ function FirstPersonCamera.start(config: Config)
 		if modifications.BodyVisible ~= nil then
 			setBodyVisible(modifications.BodyVisible, config.BodyVisible)
 			config.BodyVisible = modifications.BodyVisible
+		end
+		if modifications.MoveDirectionFactor ~= nil then
+			config.MoveDirectionFactor = modifications.MoveDirectionFactor
 		end
 	end
 
