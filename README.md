@@ -54,11 +54,13 @@ git clone --depth 1 --branch v0.4.2 https://github.com/evaera/plasma.git plasma
 
 ## Licensing
 
-_Realism_ is licensed under v2.0 of the Mozilla Public License. The intent of
-using this license is to allow the system to be used commercially in Roblox
-games for free without requiring the entire source code of the game to be
-disclosed. However, any improvements that you make to the system itself which
+_fewkz/character-realism_ is licensed under v2.0 of the Mozilla Public License.
+The intent of using this license is to allow the system to be used commercially
+in Roblox games for free without requiring the entire source code of the game to
+be disclosed. However, any improvements that you make to the system itself which
 could benefit others using it should be publicly disclosed under the same
-conditions. You must also provide credit to me (CloneTrooper1019) somewhere in
-your game if you use this system. This can be either the description or an
-in-game credits feature. Whatever suits you best :)!
+conditions. You must include a reference and credits to this project
+(fewkz/character-realism), and the original "Character Realism" project by
+MaximumADHD somewhere in your game. This can be either the description or an
+in-game credits feature. I'd recommend something like: "Uses
+fewkz/character-realism, fork of Character Realism by MaximumADHD"
