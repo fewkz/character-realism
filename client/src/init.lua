@@ -218,7 +218,7 @@ local function updateCharacter(delta, config: Config, character, rotator: Rotato
 
 			origin = data.Origin.CFrame
 		elseif data.C0 then
-			origin = data.C0
+			origin = (CFrame.new(data.C0.Position * character:GetScale()) * data.C0.Rotation)
 		end
 
 		local pitch = pitchState.Current
